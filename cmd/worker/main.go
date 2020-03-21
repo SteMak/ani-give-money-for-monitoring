@@ -52,19 +52,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == "522347439676588032" &&
 		m.ChannelID == "467251523244523522" && 
 		m.Content == "test1" {
-		  s.ChannelMessageSend("635202206358044710", ",add-money \"ДобраяKnopKa | 雨 🌧#2575\" 13")
+		  s.ChannelMessageSend("635202206358044710", "<@292953664492929025> add-money \"ДобраяKnopKa | 雨 🌧#2575\" 13")
 	}
 
 	if m.Author.ID == "522347439676588032" &&
 		m.ChannelID == "467251523244523522" && 
 		m.Content == "test2" {
-			s.ChannelMessageSend("635202206358044710", ",add-money \"GLuK | AniHouseTV#0015\" 13")
+			s.ChannelMessageSend("635202206358044710", "<@292953664492929025> add-money \"GLuK | AniHouseTV#0015\" 13")
 	}
 
 	if m.Author.ID == "522347439676588032" &&
 		m.ChannelID == "467251523244523522" && 
 		m.Content == "test3" {
-			s.ChannelMessageSend("635202206358044710", ",add-money \"Турианка#1704\" 13")
+			s.ChannelMessageSend("635202206358044710", "<@292953664492929025> add-money \"Турианка#1704\" 13")
 	}
 
 	if len(m.Embeds) > 0 && 
