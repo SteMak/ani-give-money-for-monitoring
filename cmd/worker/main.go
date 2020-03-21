@@ -17,8 +17,11 @@ func main() {
 	fmt.Println("1 WORKER started")
 
 	dg, err := discordgo.New(os.Getenv("TOKEN"))
-	errorLog(err, "ERROR creating Discord session:")
-
+	if err != nil {
+		fmt.Println("ERROR creating Discord session:", err)
+		return
+	}
+	
 	fmt.Println("2 Discord session created")
 
 	dg.AddHandler(messageCreate)
@@ -26,7 +29,10 @@ func main() {
 	fmt.Println("3 Registred the messageCreate func")
 
 	err = dg.Open()
-	errorLog(err, "ERROR opening connection:")
+	if err != nil {
+		fmt.Println("ERROR opening connection:", err)
+		return
+	}
 
 	fmt.Println("4 Opened a websocket")
 
@@ -82,8 +88,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		m.Content == "testSTEMAK" {
 
 		guild, err := s.Guild(gAhousId)
-		errorLog(err, "ERROR get guild failure:")
-
+		if err != nil {
+			fmt.Println("ERROR get guild failure:", err)
+			return
+		}
 		for _, member := range guild.Members {
 			if member.User.String() == "stemak#2557" {
 				s.ChannelMessageSend(chJoraId, ",add-money "+member.Mention()+" 10")
@@ -102,7 +110,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			m.Embeds[0].Footer != nil {
 
 			guild, err := s.Guild(gAhousId)
-			errorLog(err, "ERROR get guild failure:")
+			if err != nil {
+				fmt.Println("ERROR get guild failure:", err)
+				return
+			}
 
 			for _, member := range guild.Members {
 				if member.User.String() == m.Embeds[0].Footer.Text {
@@ -114,12 +125,18 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		matched, err := regexp.Match(`Server bumped by <@\d*>`, []byte(m.Embeds[0].Description))
-		errorLog(err, "ERROR make match regular failure:")
+		if err != nil {
+			fmt.Println("ERROR make match regular failure:", err)
+			return
+		}
 
 		if matched && m.Author.ID == uBumpId {
 			id := strings.Split(strings.Split(m.Embeds[0].Description, "<@")[1], ">")[0]
 			user, err := s.User(id)
-			errorLog(err, "ERROR get user failure:")
+			if err != nil {
+				fmt.Println("ERROR get user failure:", err)
+				return
+			}
 
 			sendAndLog(s, user, "Bump")
 		}
@@ -130,11 +147,4 @@ func sendAndLog(s *discordgo.Session, member *discordgo.User, str string) {
 	s.ChannelMessageSend(chJoraId, ",add-money "+member.Mention()+" 1000")
 	s.ChannelMessageSend(chBumpId, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, "1000<:AH_AniCoin:579712087224483850>"))
 	fmt.Println("Sever "+str+"ed by", member.String())
-}
-
-func errorLog(err error, str string) {
-	if err != nil {
-		fmt.Println(str, err)
-		return
-	}
 }
