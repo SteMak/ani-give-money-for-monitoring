@@ -38,47 +38,53 @@ func main() {
 	}
 }
 
-var (
-	isntProcess bool = true
+const (
+	chJoraId = "635202206358044710"
+	chBotId  = "467251523244523522"
+	chBumpId = "569252448137510922"
+
+	uStemaId = "522347439676588032"
+	uSupId   = "569252448137510922"
+
+	gAhousId = "464116508252045312"
 )
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
-	if m.Author.ID == "522347439676588032" &&
-		m.ChannelID == "467251523244523522" &&
+	if m.Author.ID == uStemaId &&
+		m.ChannelID == chBotId &&
 		m.Content == "R U TYT?" {
-		s.ChannelMessageSend("467251523244523522", "E IM TYT!")
+		s.ChannelMessageSend(chBotId, "E IM TYT!")
 	}
 
-	if m.Author.ID == "522347439676588032" &&
-		m.ChannelID == "467251523244523522" &&
+	if m.Author.ID == uStemaId &&
+		m.ChannelID == chBotId &&
 		m.Content == "testSTEMAK" {
 		fmt.Println("testSTEMAK runned")
 
-		guild, _ := s.Guild("464116508252045312")
+		guild, _ := s.Guild(gAhousId)
 
 		for _, member := range guild.Members {
 			if member.User.String() == "stemak#2557" {
-
-				s.ChannelMessageSend("690904843312693268", ",add-money "+member.Mention()+" 10")
+				s.ChannelMessageSend(chJoraId, ",add-money "+member.Mention()+" 10")
 				break
 			}
 		}
 	}
 
 	if len(m.Embeds) > 0 &&
-		m.ChannelID == "569252448137510922" &&
-		m.Author.ID == "464272403766444044" &&
+		m.ChannelID == chBumpId &&
+		m.Author.ID == uSupId &&
 		m.Embeds[0].Title == "Сервер Up" &&
 		m.Embeds[0].Footer != nil {
 
-		guild, _ := s.Guild("464116508252045312")
+		guild, _ := s.Guild(gAhousId)
 
 		for _, member := range guild.Members {
 			if member.User.String() == m.Embeds[0].Footer.Text {
 
-				s.ChannelMessageSend("690904843312693268", ",add-money "+member.Mention()+" 1000")
-				s.ChannelMessageSend("569252448137510922", member.Mention()+", Вы сделали Up сервера и Тихий Ужас вручил Вам 1000<:AH_AniCoin:579712087224483850>")
+				s.ChannelMessageSend(chJoraId, ",add-money "+member.Mention()+" 1000")
+				s.ChannelMessageSend(chBumpId, member.Mention()+", Вы сделали Up сервера и Тихий Ужас вручил Вам 1000<:AH_AniCoin:579712087224483850>")
 				fmt.Println("Sever uped by", m.Embeds[0].Footer.Text)
 				break
 			}
