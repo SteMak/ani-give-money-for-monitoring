@@ -11,8 +11,8 @@ import (
 func main() {
 	fmt.Println("1 WORKER started")
 	
-	dg, err := discordgo.New("Bot "+ os.Getenv("BOT_TOKEN"))
-	//dg, err := discordgo.New("Bot "+ os.Getenv("TOKEN"))
+	//dg, err := discordgo.New("Bot "+ os.Getenv("BOT_TOKEN"))
+	dg, err := discordgo.New(os.Getenv("TOKEN"))
 	if err != nil {
 		fmt.Println("ERROR creating Discord session:", err)
 		return
@@ -59,6 +59,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == "522347439676588032" &&
 		m.ChannelID == "467251523244523522" && 
 		m.Content == "test44" {
+			fmt.Println("BAX")
 			s.ChannelMessageSend("635202206358044710", ",add-money \"GLuK | AniHouseTV#0015\" 13")
 	}
 
