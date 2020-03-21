@@ -48,14 +48,22 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		m.Content == "R U TYT?" {
 		  s.ChannelMessageSend("467251523244523522", "E IM TYT!")
 	}
-	
+
+	if m.Author.ID == "522347439676588032" &&
+		m.ChannelID == "467251523244523522" && 
+		m.Content == "test1" {
+		  s.ChannelMessageSend("635202206358044710", ",add-money \"ДобраяKnopKa | 雨 🌧#2575\" 13")
+	}
+
 	if len(m.Embeds) > 0 && 
 		m.ChannelID == "569252448137510922" && 
 		m.Author.ID == "464272403766444044" && 
 		m.Embeds[0].Title == "Сервер Up" && 
 		m.Embeds[0].Footer != nil {
 
-		s.ChannelMessageSend("569252448137510922", m.Embeds[0].Footer.Text)
+		s.ChannelMessageSend("635202206358044710", ",add-money \"" + m.Embeds[0].Footer.Text + "\" 1000")
+		s.ChannelMessageSend("569252448137510922", m.Embeds[0].Footer.Text + ", за Up сервера Вам вам были начислены 1000 <:AH_AniCoin:579712087224483850>")
+
 		fmt.Println("Sever uped by", m.Embeds[0].Footer.Text)
 	}
 }
