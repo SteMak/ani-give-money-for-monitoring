@@ -11,8 +11,8 @@ import (
 func main() {
 	fmt.Println("1 WORKER started")
 	
-	//dg, err := discordgo.New("Bot "+ os.Getenv("BOT_TOKEN"))
-	dg, err := discordgo.New("Bot "+ os.Getenv("TOKEN"))
+	dg, err := discordgo.New("Bot "+ os.Getenv("BOT_TOKEN"))
+	//dg, err := discordgo.New("Bot "+ os.Getenv("TOKEN"))
 	if err != nil {
 		fmt.Println("ERROR creating Discord session:", err)
 		return
