@@ -52,7 +52,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == "522347439676588032" &&
 		m.ChannelID == "467251523244523522" && 
 		m.Content == "test1" {
-		  s.ChannelMessageSend("635202206358044710", ",add-money \"ДобраяKnopKa | 雨 🌧#2575\" 13")
+		  s.ChannelMessageSend("635202206358044710", ",add-money @\"ДобраяKnopKa | 雨 🌧#2575\" 13")
 	}
 
 	if len(m.Embeds) > 0 && 
