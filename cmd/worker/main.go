@@ -61,8 +61,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		m.Embeds[0].Title == "Сервер Up" && 
 		m.Embeds[0].Footer != nil {
 
-		s.ChannelMessageSend("690904843312693268", ",add-money \"" + m.Embeds[0].Footer.Text + "\" 1000")
-
+		s.ChannelMessageSend("690904843312693268", "S.UP " + m.Embeds[0].Footer.Text)
 		fmt.Println("Sever uped by", m.Embeds[0].Footer.Text)
 	}
 }
