@@ -52,7 +52,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == "522347439676588032" &&
 		m.ChannelID == "467251523244523522" && 
 		m.Content == "test" {
-		  s.ChannelMessageSend("690827829985673256", "test")
+		  s.ChannelMessageSend("690906098579931146", "test")
 	}
 
 	if len(m.Embeds) > 0 && 
@@ -61,7 +61,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		m.Embeds[0].Title == "Сервер Up" && 
 		m.Embeds[0].Footer != nil {
 
-		s.ChannelMessageSend("690827829985673256", ",add-money \"" + m.Embeds[0].Footer.Text + "\" 1000")
+		s.ChannelMessageSend("690906098579931146", ",add-money \"" + m.Embeds[0].Footer.Text + "\" 1000")
 
 		fmt.Println("Sever uped by", m.Embeds[0].Footer.Text)
 	}
