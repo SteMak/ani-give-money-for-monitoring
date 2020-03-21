@@ -11,7 +11,7 @@ import (
 func main() {
 	fmt.Println("1 WORKER started")
 	
-	dg, err := discordgo.New("Bot " + os.Getenv("BOT_TOKEN"))
+	dg, err := discordgo.New(os.Getenv("EMAIL") + os.Getenv("PASS"))
 	if err != nil {
 		fmt.Println("ERROR creating Discord session:", err)
 		return
@@ -52,14 +52,20 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == "522347439676588032" &&
 		m.ChannelID == "467251523244523522" && 
 		m.Content == "test1" {
-		  s.ChannelMessageSend("635202206358044710", ",add-money \"@ДобраяKnopKa | 雨 🌧#2575\" 13")
+		  s.ChannelMessageSend("635202206358044710", ",add-money \"ДобраяKnopKa | 雨 🌧#2575\" 13")
 	}
 
 	if m.Author.ID == "522347439676588032" &&
-	m.ChannelID == "467251523244523522" && 
-	m.Content == "test1" {
-		s.ChannelMessageSend("635202206358044710", ",add-money @ДобраяKnopKa | 雨 🌧#2575 13")
-}
+		m.ChannelID == "467251523244523522" && 
+		m.Content == "test2" {
+			s.ChannelMessageSend("635202206358044710", ",add-money \"GLuK | AniHouseTV#0015\" 13")
+	}
+
+	if m.Author.ID == "522347439676588032" &&
+		m.ChannelID == "467251523244523522" && 
+		m.Content == "test3" {
+			s.ChannelMessageSend("635202206358044710", ",add-money \"Турианка#1704\" 13")
+	}
 
 	if len(m.Embeds) > 0 && 
 		m.ChannelID == "569252448137510922" && 
