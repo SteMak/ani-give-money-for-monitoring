@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -45,8 +47,13 @@ const (
 
 	uStemaId = "522347439676588032"
 	uSupId   = "569252448137510922"
+	uBumpId  = "315926021457051650"
 
 	gAhousId = "464116508252045312"
+)
+
+var (
+	userId string
 )
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -72,9 +79,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
-	if len(m.Embeds) > 0 &&
-		m.ChannelID == chBumpId &&
+	if m.ChannelID == chBumpId &&
 		m.Author.ID == uSupId &&
+		len(m.Embeds) > 0 &&
 		m.Embeds[0].Title == "Сервер Up" &&
 		m.Embeds[0].Footer != nil {
 
@@ -88,6 +95,20 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				fmt.Println("Sever uped by", m.Embeds[0].Footer.Text)
 				break
 			}
+		}
+	}
+	
+	if m.ChannelID == chBumpId &&
+		m.Author.ID == uBumpId &&
+		len(m.Embeds) > 0 {
+
+		matched, _ := regexp.Match(`Server bumped by <@\d*>`, []byte(m.Embeds[0].Description))
+		if matched {
+
+			member := "<" + strings.Split(strings.Split(m.Embeds[0].Description, "<")[1], ">")[0] + ">"
+			s.ChannelMessageSend(chJoraId, ",add-money "+member+" 1000")
+			s.ChannelMessageSend(chBumpId, member+", Вы сделали Bump сервера и Скромный Модератор вручил Вам 1000<:AH_AniCoin:579712087224483850>")
+			fmt.Println("Sever bumped by", m.Embeds[0].Footer.Text)
 		}
 	}
 }
