@@ -91,13 +91,97 @@ var (
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == uStemaID &&
 		m.ChannelID == chJoraID &&
-		m.Content == "R U TYT?" {
+		strings.HasPrefix(m.Content, "test ") {
+
+		test(s, m)
+		return
+	}
+
+	if m.ChannelID == chBumpID &&
+		len(m.Embeds) > 0 {
+
+		fmt.Println("FOUND embed in channel of monitoring")
+
+		if m.Author.ID == uSupID &&
+			m.Embeds[0].Title == "Сервер Up" &&
+			m.Embeds[0].Footer != nil {
+
+			onSiupServer(s, m)
+			return
+		}
+
+		matched, err := regexp.Match(`Server bumped by <@\d*>`, []byte(m.Embeds[0].Description))
+		if err != nil {
+			fmt.Println("ERROR Bump make match regular failure:", err)
+			return
+		}
+
+		if matched && m.Author.ID == uBumpID {
+			onBumpServer(s, m)
+			return
+		}
+	}
+}
+
+func onSiupServer(s *discordgo.Session, m *discordgo.MessageCreate) {
+	fmt.Println("FOUND S.up message")
+
+	fmt.Println("FOUND S.up user:", m.Embeds[0].Footer.Text)
+
+	guild, err := s.Guild(gAhousID)
+	if err != nil {
+		fmt.Println("ERROR S.up get guild failure:", err)
+		return
+	}
+
+	for _, member := range guild.Members {
+		if member.User.String() == m.Embeds[0].Footer.Text {
+
+			fmt.Println("FOUND S.up matched member")
+
+			sendAndLog(s, member.User, "S.up")
+			break
+		}
+	}
+}
+
+func onBumpServer(s *discordgo.Session, m *discordgo.MessageCreate) {
+	fmt.Println("FOUND Bump message")
+
+	ID := strings.Split(strings.Split(m.Embeds[0].Description, "<@")[1], ">")[0]
+	user, err := s.User(ID)
+	if err != nil {
+		fmt.Println("ERROR Bump get user failure:", err)
+		return
+	}
+
+	fmt.Println("FOUND Bump user:", user.String())
+
+	sendAndLog(s, user, "Bump")
+}
+
+func sendAndLog(s *discordgo.Session, member *discordgo.User, str string) {
+	_, err = s.ChannelMessageSend(chJoraID, ",add-money "+member.Mention()+" 1000")
+	if err != nil {
+		fmt.Println("ERROR "+str+" sending message giving money:", err)
+		return
+	}
+
+	_, err = s.ChannelMessageSend(chBumpID, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, "1000<:AH_AniCoin:579712087224483850>"))
+	if err != nil {
+		fmt.Println("ERROR "+str+" sending message notice:", err)
+		return
+	}
+
+	fmt.Println("GUILD "+str+" by", member.String())
+}
+
+func test(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Content == "test R U TYT?" {
 		s.ChannelMessageSend(chJoraID, "E IM TYT!")
 	}
 
-	if m.Author.ID == uStemaID &&
-		m.ChannelID == chJoraID &&
-		m.Content == "test S.up" {
+	if m.Content == "test S.up" {
 
 		fmt.Println("FOUND test S.up message")
 
@@ -132,9 +216,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
-	if m.Author.ID == uStemaID &&
-		m.ChannelID == chJoraID &&
-		m.Content == "test Bump" {
+	if m.Content == "test Bump" {
 
 		fmt.Println("FOUND test Bump message")
 
@@ -161,73 +243,4 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		fmt.Println("SERVER test Bump by", user.String())
 	}
-
-	if m.ChannelID == chBumpID &&
-		len(m.Embeds) > 0 {
-
-		fmt.Println("FOUND embed in channel of monitoring")
-
-		if m.Author.ID == uSupID &&
-			m.Embeds[0].Title == "Сервер Up" &&
-			m.Embeds[0].Footer != nil {
-
-			fmt.Println("FOUND S.up message")
-
-			fmt.Println("FOUND S.up user:", m.Embeds[0].Footer.Text)
-
-			guild, err := s.Guild(gAhousID)
-			if err != nil {
-				fmt.Println("ERROR S.up get guild failure:", err)
-				return
-			}
-
-			for _, member := range guild.Members {
-				if member.User.String() == m.Embeds[0].Footer.Text {
-
-					fmt.Println("FOUND S.up matched member")
-
-					sendAndLog(s, member.User, "S.up")
-					break
-				}
-			}
-		}
-
-		matched, err := regexp.Match(`Server bumped by <@\d*>`, []byte(m.Embeds[0].Description))
-		if err != nil {
-			fmt.Println("ERROR Bump make match regular failure:", err)
-			return
-		}
-
-		if matched && m.Author.ID == uBumpID {
-
-			fmt.Println("FOUND Bump message")
-
-			ID := strings.Split(strings.Split(m.Embeds[0].Description, "<@")[1], ">")[0]
-			user, err := s.User(ID)
-			if err != nil {
-				fmt.Println("ERROR Bump get user failure:", err)
-				return
-			}
-
-			fmt.Println("FOUND Bump user:", user.String())
-
-			sendAndLog(s, user, "Bump")
-		}
-	}
-}
-
-func sendAndLog(s *discordgo.Session, member *discordgo.User, str string) {
-	_, err = s.ChannelMessageSend(chJoraID, ",add-money "+member.Mention()+" 1000")
-	if err != nil {
-		fmt.Println("ERROR "+str+" sending message giving money:", err)
-		return
-	}
-
-	_, err = s.ChannelMessageSend(chBumpID, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, "1000<:AH_AniCoin:579712087224483850>"))
-	if err != nil {
-		fmt.Println("ERROR "+str+" sending message notice:", err)
-		return
-	}
-
-	fmt.Println("SERVER "+str+" by", member.String())
 }
