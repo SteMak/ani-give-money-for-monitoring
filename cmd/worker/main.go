@@ -39,7 +39,7 @@ func main() {
 
 	for i := 1; i > 0; i++ {
 		time.Sleep(15 * time.Minute)
-		fmt.Println("WORKER uped for", 15*i, "minutes")
+		fmt.Println("WORKS for", 15*i, "minutes")
 	}
 }
 
