@@ -212,19 +212,29 @@ func onBumpServerTest(s *discordgo.Session) {
 		return
 	}
 
-	fmt.Println("FOUND Bump user:", user.String())
+	fmt.Println("FOUND test Bump user:", user.String())
 
 	sendAndLog(s, user, "test Bump", 10)
 }
 
 func sendAndLog(s *discordgo.Session, member *discordgo.User, str string, sum int) {
-	_, err = s.ChannelMessageSend(chJoraID, ",add-money "+member.Mention()+" "+strconv.Itoa(sum))
+	var (
+		chForCommand = chJoraID
+		chForLog     = chBumpID
+	)
+
+	if strings.HasPrefix(str, "test ") {
+		chForCommand = chJoraID
+		chForLog = chJoraID
+	}
+
+	_, err = s.ChannelMessageSend(chForCommand, ",add-money "+member.Mention()+" "+strconv.Itoa(sum))
 	if err != nil {
 		fmt.Println("ERROR "+str+" sending message giving money:", err)
 		return
 	}
 
-	_, err = s.ChannelMessageSend(chBumpID, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, strconv.Itoa(sum)+"<:AH_AniCoin:579712087224483850>"))
+	_, err = s.ChannelMessageSend(chForLog, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, strconv.Itoa(sum)+"<:AH_AniCoin:579712087224483850>"))
 	if err != nil {
 		fmt.Println("ERROR "+str+" sending message notice:", err)
 		return
