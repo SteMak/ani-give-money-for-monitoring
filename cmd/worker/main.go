@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,7 +37,7 @@ func main() {
 
 	fmt.Println("4 Opened a websocket")
 
-	for i := 1; i > 0; i += 1 {
+	for i := 1; i > 0; i++ {
 		time.Sleep(15 * time.Minute)
 		fmt.Println("WORKER uped for", 15*i, "minutes")
 	}
@@ -99,27 +100,31 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if m.ChannelID == chBumpID &&
 		len(m.Embeds) > 0 {
-
 		fmt.Println("FOUND embed in channel of monitoring")
 
-		if m.Author.ID == uSupID &&
-			m.Embeds[0].Title == "Сервер Up" &&
-			m.Embeds[0].Footer != nil {
+		detectBumpSiup(s, m)
+		return
+	}
+}
 
-			onSiupServer(s, m)
-			return
-		}
+func detectBumpSiup(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == uSupID &&
+		m.Embeds[0].Title == "Сервер Up" &&
+		m.Embeds[0].Footer != nil {
 
-		matched, err := regexp.Match(`Server bumped by <@\d*>`, []byte(m.Embeds[0].Description))
-		if err != nil {
-			fmt.Println("ERROR Bump make match regular failure:", err)
-			return
-		}
+		onSiupServer(s, m)
+		return
+	}
 
-		if matched && m.Author.ID == uBumpID {
-			onBumpServer(s, m)
-			return
-		}
+	matched, err := regexp.Match(`Server bumped by <@\d*>`, []byte(m.Embeds[0].Description))
+	if err != nil {
+		fmt.Println("ERROR Bump make match regular failure:", err)
+		return
+	}
+
+	if matched && m.Author.ID == uBumpID {
+		onBumpServer(s, m)
+		return
 	}
 }
 
@@ -136,11 +141,10 @@ func onSiupServer(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	for _, member := range guild.Members {
 		if member.User.String() == m.Embeds[0].Footer.Text {
-
 			fmt.Println("FOUND S.up matched member")
 
-			sendAndLog(s, member.User, "S.up")
-			break
+			sendAndLog(s, member.User, "S.up", 1000)
+			return
 		}
 	}
 }
@@ -157,90 +161,74 @@ func onBumpServer(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	fmt.Println("FOUND Bump user:", user.String())
 
-	sendAndLog(s, user, "Bump")
+	sendAndLog(s, user, "Bump", 1000)
 }
 
-func sendAndLog(s *discordgo.Session, member *discordgo.User, str string) {
-	_, err = s.ChannelMessageSend(chJoraID, ",add-money "+member.Mention()+" 1000")
+func test(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Content == "test R U TYT?" {
+		s.ChannelMessageSend(chJoraID, "E IM TYT!")
+		return
+	}
+
+	if m.Content == "test S.up" {
+		onSiupServerTest(s)
+		return
+	}
+
+	if m.Content == "test Bump" {
+		onBumpServerTest(s)
+		return
+	}
+}
+
+func onSiupServerTest(s *discordgo.Session) {
+	fmt.Println("FOUND test S.up message")
+
+	fmt.Println("FOUND test S.up user:", "stemak#2557")
+
+	guild, err := s.Guild(gAhousID)
+	if err != nil {
+		fmt.Println("ERROR test S.up get guild failure:", err)
+		return
+	}
+
+	for _, member := range guild.Members {
+		if member.User.String() == "stemak#2557" {
+			fmt.Println("FOUND test S.up matched member")
+
+			sendAndLog(s, member.User, "test S.up", 10)
+			return
+		}
+	}
+}
+
+func onBumpServerTest(s *discordgo.Session) {
+	fmt.Println("FOUND test Bump message")
+
+	ID := strings.Split(strings.Split("Server bumped by <@522347439676588032>. Malades!", "<@")[1], ">")[0]
+	user, err := s.User(ID)
+	if err != nil {
+		fmt.Println("ERROR test Bump get user failure:", err)
+		return
+	}
+
+	fmt.Println("FOUND Bump user:", user.String())
+
+	sendAndLog(s, user, "test Bump", 10)
+}
+
+func sendAndLog(s *discordgo.Session, member *discordgo.User, str string, sum int) {
+	_, err = s.ChannelMessageSend(chJoraID, ",add-money "+member.Mention()+" "+strconv.Itoa(sum))
 	if err != nil {
 		fmt.Println("ERROR "+str+" sending message giving money:", err)
 		return
 	}
 
-	_, err = s.ChannelMessageSend(chBumpID, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, "1000<:AH_AniCoin:579712087224483850>"))
+	_, err = s.ChannelMessageSend(chBumpID, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, strconv.Itoa(sum)+"<:AH_AniCoin:579712087224483850>"))
 	if err != nil {
 		fmt.Println("ERROR "+str+" sending message notice:", err)
 		return
 	}
 
 	fmt.Println("GUILD "+str+" by", member.String())
-}
-
-func test(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Content == "test R U TYT?" {
-		s.ChannelMessageSend(chJoraID, "E IM TYT!")
-	}
-
-	if m.Content == "test S.up" {
-
-		fmt.Println("FOUND test S.up message")
-
-		fmt.Println("FOUND test S.up user:", "stemak#2557")
-
-		guild, err := s.Guild(gAhousID)
-		if err != nil {
-			fmt.Println("ERROR test S.up get guild failure:", err)
-			return
-		}
-
-		for _, member := range guild.Members {
-			if member.User.String() == "stemak#2557" {
-
-				fmt.Println("FOUND test S.up matched member")
-
-				_, err = s.ChannelMessageSend(chJoraID, ",add-money "+member.User.Mention()+" 10")
-				if err != nil {
-					fmt.Println("ERROR test S.up sending message giving money:", err)
-					return
-				}
-
-				_, err = s.ChannelMessageSend(chJoraID, member.User.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], "test S.up", "10<:AH_AniCoin:579712087224483850>"))
-				if err != nil {
-					fmt.Println("ERROR test S.up sending message notice:", err)
-					return
-				}
-
-				fmt.Println("SERVER test S.up by", member.User.String())
-				break
-			}
-		}
-	}
-
-	if m.Content == "test Bump" {
-
-		fmt.Println("FOUND test Bump message")
-
-		ID := strings.Split(strings.Split("Server bumped by <@522347439676588032>. Malades!", "<@")[1], ">")[0]
-		user, err := s.User(ID)
-		if err != nil {
-			fmt.Println("ERROR test Bump get user failure:", err)
-			return
-		}
-
-		fmt.Println("FOUND Bump user:", user.String())
-
-		_, err = s.ChannelMessageSend(chJoraID, ",add-money "+user.Mention()+" 10")
-		if err != nil {
-			fmt.Println("ERROR test Bump sending message giving money:", err)
-			return
-		}
-
-		_, err = s.ChannelMessageSend(chJoraID, user.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], "test Bump", "10<:AH_AniCoin:579712087224483850>"))
-		if err != nil {
-			fmt.Println("ERROR test Bump sending message notice:", err)
-			return
-		}
-
-		fmt.Println("SERVER test Bump by", user.String())
-	}
 }
