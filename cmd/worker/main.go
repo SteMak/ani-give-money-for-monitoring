@@ -44,15 +44,17 @@ func main() {
 }
 
 const (
-	chJoraID = "635202206358044710"
-	chBotID  = "467251523244523522"
-	chBumpID = "569252448137510922"
+	chTestLogID = "635202206358044710"
+	chTestComID = "635202206358044710"
 
-	uStemaID = "522347439676588032"
-	uSupID   = "464272403766444044"
-	uBumpID  = "315926021457051650"
+	chForComID  = "635202206358044710"
+	chMonitorID = "569252448137510922"
 
-	gAhousID = "464116508252045312"
+	usAdminID = "522347439676588032"
+	usSiupID  = "464272403766444044"
+	usBumpID  = "315926021457051650"
+
+	gdAniHouseID = "464116508252045312"
 )
 
 var (
@@ -90,17 +92,17 @@ var (
 )
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == uStemaID &&
-		m.ChannelID == chJoraID &&
+	if m.Author.ID == usAdminID &&
+		m.ChannelID == chTestComID &&
 		strings.HasPrefix(m.Content, "test ") {
 
 		test(s, m)
 		return
 	}
 
-	if m.ChannelID == chBumpID &&
+	if m.ChannelID == chMonitorID &&
 		len(m.Embeds) > 0 {
-		fmt.Println("FOUND embed in channel of monitoring")
+		fmt.Println("FOUND embed in monitoring", m.ID)
 
 		detectBumpSiup(s, m)
 		return
@@ -108,7 +110,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func detectBumpSiup(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == uSupID &&
+	if m.Author.ID == usSiupID &&
 		m.Embeds[0].Title == "Сервер Up" &&
 		m.Embeds[0].Footer != nil {
 
@@ -122,7 +124,7 @@ func detectBumpSiup(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if matched && m.Author.ID == uBumpID {
+	if matched && m.Author.ID == usBumpID {
 		onBumpServer(s, m)
 		return
 	}
@@ -133,7 +135,7 @@ func onSiupServer(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	fmt.Println("FOUND S.up user:", m.Embeds[0].Footer.Text)
 
-	guild, err := s.Guild(gAhousID)
+	guild, err := s.Guild(gdAniHouseID)
 	if err != nil {
 		fmt.Println("ERROR S.up get guild failure:", err)
 		return
@@ -166,7 +168,7 @@ func onBumpServer(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func test(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "test R U TYT?" {
-		s.ChannelMessageSend(chJoraID, "E IM TYT!")
+		s.ChannelMessageSend(chTestLogID, "E IM TYT!")
 		return
 	}
 
@@ -186,7 +188,7 @@ func onSiupServerTest(s *discordgo.Session) {
 
 	fmt.Println("FOUND test S.up user:", "stemak#2557")
 
-	guild, err := s.Guild(gAhousID)
+	guild, err := s.Guild(gdAniHouseID)
 	if err != nil {
 		fmt.Println("ERROR test S.up get guild failure:", err)
 		return
@@ -219,13 +221,13 @@ func onBumpServerTest(s *discordgo.Session) {
 
 func sendAndLog(s *discordgo.Session, member *discordgo.User, str string, sum int) {
 	var (
-		chForCommand = chJoraID
-		chForLog     = chBumpID
+		chForCommand = chForComID
+		chForLog     = chMonitorID
 	)
 
 	if strings.HasPrefix(str, "test ") {
-		chForCommand = chJoraID
-		chForLog = chJoraID
+		chForCommand = chTestComID
+		chForLog = chTestLogID
 	}
 
 	_, err = s.ChannelMessageSend(chForCommand, ",add-money "+member.Mention()+" "+strconv.Itoa(sum))
