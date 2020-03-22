@@ -21,7 +21,7 @@ func main() {
 		fmt.Println("ERROR creating Discord session:", err)
 		return
 	}
-	
+
 	fmt.Println("2 Discord session created")
 
 	dg.AddHandler(messageCreate)
@@ -43,19 +43,21 @@ func main() {
 }
 
 const (
-	chJoraId = "635202206358044710"
-	chBotId  = "467251523244523522"
-	chBumpId = "569252448137510922"
+	chJoraID = "635202206358044710"
+	chBotID  = "467251523244523522"
+	chBumpID = "569252448137510922"
 
-	uStemaId = "522347439676588032"
-	uSupId   = "464272403766444044"
-	uBumpId  = "315926021457051650"
+	uStemaID = "522347439676588032"
+	uSupID   = "464272403766444044"
+	uBumpID  = "315926021457051650"
 
-	gAhousId = "464116508252045312"
+	gAhousID = "464116508252045312"
 )
 
 var (
-	userId string
+	err error
+
+	userID string
 
 	responces = []string{
 		"Вы сделали %s сервера и Тихий Ужас вручил Вам %s",
@@ -87,46 +89,102 @@ var (
 )
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == uStemaId &&
-		m.ChannelID == chJoraId &&
+	if m.Author.ID == uStemaID &&
+		m.ChannelID == chJoraID &&
 		m.Content == "R U TYT?" {
-		s.ChannelMessageSend(chJoraId, "E IM TYT!")
+		s.ChannelMessageSend(chJoraID, "E IM TYT!")
 	}
 
-	if m.Author.ID == uStemaId &&
-		m.ChannelID == chJoraId &&
-		m.Content == "testSTEMAK" {
+	if m.Author.ID == uStemaID &&
+		m.ChannelID == chJoraID &&
+		m.Content == "test S.up" {
 
-		guild, err := s.Guild(gAhousId)
+		fmt.Println("FOUND test S.up message")
+
+		fmt.Println("FOUND test S.up user:", "stemak#2557")
+
+		guild, err := s.Guild(gAhousID)
 		if err != nil {
-			fmt.Println("ERROR get guild failure:", err)
+			fmt.Println("ERROR test S.up get guild failure:", err)
 			return
 		}
+
 		for _, member := range guild.Members {
 			if member.User.String() == "stemak#2557" {
-				s.ChannelMessageSend(chJoraId, ",add-money "+member.Mention()+" 10")
-				s.ChannelMessageSend(chJoraId, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], "Bump", "1000<:AH_AniCoin:579712087224483850>"))
-				fmt.Println("testSTEMAK done")
+
+				fmt.Println("FOUND test S.up matched member")
+
+				_, err = s.ChannelMessageSend(chJoraID, ",add-money "+member.User.Mention()+" 10")
+				if err != nil {
+					fmt.Println("ERROR test S.up sending message giving money:", err)
+					return
+				}
+
+				_, err = s.ChannelMessageSend(chJoraID, member.User.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], "test S.up", "10<:AH_AniCoin:579712087224483850>"))
+				if err != nil {
+					fmt.Println("ERROR test S.up sending message notice:", err)
+					return
+				}
+
+				fmt.Println("SERVER test S.up by", member.User.String())
 				break
 			}
 		}
 	}
 
-	if m.ChannelID == chBumpId &&
+	if m.Author.ID == uStemaID &&
+		m.ChannelID == chJoraID &&
+		m.Content == "test Bump" {
+
+		fmt.Println("FOUND test Bump message")
+
+		ID := strings.Split(strings.Split("Server bumped by <@522347439676588032>. Malades!", "<@")[1], ">")[0]
+		user, err := s.User(ID)
+		if err != nil {
+			fmt.Println("ERROR test Bump get user failure:", err)
+			return
+		}
+
+		fmt.Println("FOUND Bump user:", user.String())
+
+		_, err = s.ChannelMessageSend(chJoraID, ",add-money "+user.Mention()+" 10")
+		if err != nil {
+			fmt.Println("ERROR test Bump sending message giving money:", err)
+			return
+		}
+
+		_, err = s.ChannelMessageSend(chJoraID, user.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], "test Bump", "10<:AH_AniCoin:579712087224483850>"))
+		if err != nil {
+			fmt.Println("ERROR test Bump sending message notice:", err)
+			return
+		}
+
+		fmt.Println("SERVER test Bump by", user.String())
+	}
+
+	if m.ChannelID == chBumpID &&
 		len(m.Embeds) > 0 {
 
-		if m.Author.ID == uSupId &&
+		fmt.Println("FOUND embed in channel of monitoring")
+
+		if m.Author.ID == uSupID &&
 			m.Embeds[0].Title == "Сервер Up" &&
 			m.Embeds[0].Footer != nil {
 
-			guild, err := s.Guild(gAhousId)
+			fmt.Println("FOUND S.up message")
+
+			fmt.Println("FOUND S.up user:", m.Embeds[0].Footer.Text)
+
+			guild, err := s.Guild(gAhousID)
 			if err != nil {
-				fmt.Println("ERROR get guild failure:", err)
+				fmt.Println("ERROR S.up get guild failure:", err)
 				return
 			}
 
 			for _, member := range guild.Members {
 				if member.User.String() == m.Embeds[0].Footer.Text {
+
+					fmt.Println("FOUND S.up matched member")
 
 					sendAndLog(s, member.User, "S.up")
 					break
@@ -136,17 +194,22 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		matched, err := regexp.Match(`Server bumped by <@\d*>`, []byte(m.Embeds[0].Description))
 		if err != nil {
-			fmt.Println("ERROR make match regular failure:", err)
+			fmt.Println("ERROR Bump make match regular failure:", err)
 			return
 		}
 
-		if matched && m.Author.ID == uBumpId {
-			id := strings.Split(strings.Split(m.Embeds[0].Description, "<@")[1], ">")[0]
-			user, err := s.User(id)
+		if matched && m.Author.ID == uBumpID {
+
+			fmt.Println("FOUND Bump message")
+
+			ID := strings.Split(strings.Split(m.Embeds[0].Description, "<@")[1], ">")[0]
+			user, err := s.User(ID)
 			if err != nil {
-				fmt.Println("ERROR get user failure:", err)
+				fmt.Println("ERROR Bump get user failure:", err)
 				return
 			}
+
+			fmt.Println("FOUND Bump user:", user.String())
 
 			sendAndLog(s, user, "Bump")
 		}
@@ -154,7 +217,17 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func sendAndLog(s *discordgo.Session, member *discordgo.User, str string) {
-	s.ChannelMessageSend(chJoraId, ",add-money "+member.Mention()+" 1000")
-	s.ChannelMessageSend(chBumpId, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, "1000<:AH_AniCoin:579712087224483850>"))
-	fmt.Println("Sever "+str+"ed by", member.String())
+	_, err = s.ChannelMessageSend(chJoraID, ",add-money "+member.Mention()+" 1000")
+	if err != nil {
+		fmt.Println("ERROR "+str+" sending message giving money:", err)
+		return
+	}
+
+	_, err = s.ChannelMessageSend(chBumpID, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, "1000<:AH_AniCoin:579712087224483850>"))
+	if err != nil {
+		fmt.Println("ERROR "+str+" sending message notice:", err)
+		return
+	}
+
+	fmt.Println("SERVER "+str+" by", member.String())
 }
