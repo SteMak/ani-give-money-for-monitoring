@@ -53,8 +53,6 @@ const (
 	usAdminID = "522347439676588032"
 	usSiupID  = "464272403766444044"
 	usBumpID  = "315926021457051650"
-
-	gdAniHouseID = "464116508252045312"
 )
 
 var (
@@ -89,9 +87,19 @@ var (
 		"ɔıloqoou написал %s перевёрнутыти буквами, поэтому вы неспеша забрали %s",
 		"Фузу мирно рисовала в войсе, а Вы сделали %s и собрали %s",
 	}
+
+	chMonitorWriters []*discordgo.User
 )
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.ChannelID == chMonitorID {
+		if len(chMonitorWriters) > 30 {
+			chMonitorWriters = chMonitorWriters[1:]
+		}
+
+		chMonitorWriters = append(chMonitorWriters, m.Author)
+	}
+
 	if m.Author.ID == usAdminID &&
 		m.ChannelID == chTestComID &&
 		strings.HasPrefix(m.Content, "test ") {
@@ -135,17 +143,11 @@ func onSiupServer(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	fmt.Println("FOUND S.up user:", m.Embeds[0].Footer.Text)
 
-	guild, err := s.Guild(gdAniHouseID)
-	if err != nil {
-		fmt.Println("ERROR S.up get guild failure:", err)
-		return
-	}
-
-	for _, member := range guild.Members {
-		if member.User.String() == m.Embeds[0].Footer.Text {
+	for _, user := range chMonitorWriters {
+		if user.String() == m.Embeds[0].Footer.Text {
 			fmt.Println("FOUND S.up matched member")
 
-			sendAndLog(s, member.User, "S.up", 1000)
+			sendAndLog(s, user, "S.up", 1000)
 			return
 		}
 	}
@@ -188,17 +190,11 @@ func onSiupServerTest(s *discordgo.Session) {
 
 	fmt.Println("FOUND test S.up user:", "stemak#2557")
 
-	guild, err := s.Guild(gdAniHouseID)
-	if err != nil {
-		fmt.Println("ERROR test S.up get guild failure:", err)
-		return
-	}
-
-	for _, member := range guild.Members {
-		if member.User.String() == "stemak#2557" {
+	for _, user := range chMonitorWriters {
+		if user.String() == "stemak#2557" {
 			fmt.Println("FOUND test S.up matched member")
 
-			sendAndLog(s, member.User, "test S.up", 10)
+			sendAndLog(s, user, "test S.up", 10)
 			return
 		}
 	}
