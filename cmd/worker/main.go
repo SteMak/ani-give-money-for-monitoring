@@ -88,7 +88,12 @@ var (
 		"Фузу мирно рисовала в войсе, а Вы сделали %s и собрали %s",
 	}
 
-	chMonitorWriters []simplifiedUser
+	chMonitorWriters []simplifiedUser = []simplifiedUser{
+		simplifiedUser{
+			id:     "522347439676588032",
+			strify: "stemak#2557",
+		},
+	}
 )
 
 type simplifiedUser struct {
@@ -99,7 +104,7 @@ type simplifiedUser struct {
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.ChannelID == chMonitorID {
 		if len(chMonitorWriters) > 30 {
-			chMonitorWriters = chMonitorWriters[1:]
+			chMonitorWriters = append(chMonitorWriters[:1], chMonitorWriters[2:]...)
 		}
 
 		chMonitorWriters = append(chMonitorWriters, simplifiedUser{
@@ -118,6 +123,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if m.ChannelID == chMonitorID &&
 		len(m.Embeds) > 0 {
+
 		detectBumpSiup(s, m)
 		return
 	}
@@ -206,7 +212,7 @@ func onSiupServerTest(s *discordgo.Session) {
 }
 
 func onBumpServerTest(s *discordgo.Session) {
-	fmt.Println("FOUND test Bump message")
+	fmt.Println("FOUND test Bump")
 
 	userID := strings.Split(strings.Split("Server bumped by <@522347439676588032>. Malades!", "<@")[1], ">")[0]
 	if len(userID) == 0 {
@@ -245,5 +251,5 @@ func sendAndLog(s *discordgo.Session, userID string, str string, sum int) {
 		return
 	}
 
-	fmt.Println("GUILD "+str+" by", userID)
+	fmt.Println("GUILD "+str+" by  ", userID)
 }
