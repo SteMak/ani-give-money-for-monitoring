@@ -88,7 +88,7 @@ var (
 		"Фузу мирно рисовала в войсе, а Вы сделали %s и собрали %s",
 	}
 
-	chMonitorWriters []simplifiedUser = []simplifiedUser{
+	chMonitorWriters = []simplifiedUser{
 		simplifiedUser{
 			id:     "522347439676588032",
 			strify: "stemak#2557",
