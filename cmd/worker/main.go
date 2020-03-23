@@ -88,8 +88,13 @@ var (
 		"Фузу мирно рисовала в войсе, а Вы сделали %s и собрали %s",
 	}
 
-	chMonitorWriters []*discordgo.User
+	chMonitorWriters []simplifiedUser
 )
+
+type simplifiedUser struct {
+	id     string
+	strify string
+}
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.ChannelID == chMonitorID {
@@ -97,7 +102,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			chMonitorWriters = chMonitorWriters[1:]
 		}
 
-		chMonitorWriters = append(chMonitorWriters, m.Author)
+		chMonitorWriters = append(chMonitorWriters, simplifiedUser{
+			id:     m.Author.ID,
+			strify: m.Author.String(),
+		})
 	}
 
 	if m.Author.ID == usAdminID &&
@@ -110,8 +118,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if m.ChannelID == chMonitorID &&
 		len(m.Embeds) > 0 {
-		fmt.Println("FOUND embed in monitoring", m.ID)
-
 		detectBumpSiup(s, m)
 		return
 	}
@@ -139,33 +145,34 @@ func detectBumpSiup(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func onSiupServer(s *discordgo.Session, m *discordgo.MessageCreate) {
-	fmt.Println("FOUND S.up message")
-
-	fmt.Println("FOUND S.up user:", m.Embeds[0].Footer.Text)
+	fmt.Println("FOUND S.up")
 
 	for _, user := range chMonitorWriters {
-		if user.String() == m.Embeds[0].Footer.Text {
-			fmt.Println("FOUND S.up matched member")
+		if user.strify == m.Embeds[0].Footer.Text {
+			fmt.Println("FOUND S.up user", user.id)
 
-			sendAndLog(s, user, "S.up", 1000)
+			sendAndLog(s, user.id, "S.up", 1000)
 			return
 		}
 	}
 }
 
 func onBumpServer(s *discordgo.Session, m *discordgo.MessageCreate) {
-	fmt.Println("FOUND Bump message")
+	fmt.Println("FOUND Bump")
 
-	ID := strings.Split(strings.Split(m.Embeds[0].Description, "<@")[1], ">")[0]
-	user, err := s.User(ID)
-	if err != nil {
-		fmt.Println("ERROR Bump get user failure:", err)
+	userID := strings.Split(strings.Split(m.Embeds[0].Description, "<@")[1], ">")[0]
+	if len(userID) == 0 {
+		fmt.Println("ERROR Bump get user ID:", m.Embeds[0].Description)
 		return
 	}
 
-	fmt.Println("FOUND Bump user:", user.String())
+	if strings.HasPrefix(userID, "!") {
+		userID = userID[1:]
+	}
 
-	sendAndLog(s, user, "Bump", 1000)
+	fmt.Println("FOUND Bump user:", userID)
+
+	sendAndLog(s, userID, "Bump", 1000)
 }
 
 func test(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -186,15 +193,13 @@ func test(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func onSiupServerTest(s *discordgo.Session) {
-	fmt.Println("FOUND test S.up message")
-
-	fmt.Println("FOUND test S.up user:", "stemak#2557")
+	fmt.Println("FOUND test S.up")
 
 	for _, user := range chMonitorWriters {
-		if user.String() == "stemak#2557" {
-			fmt.Println("FOUND test S.up matched member")
+		if user.strify == "stemak#2557" {
+			fmt.Println("FOUND test S.up user", user.id)
 
-			sendAndLog(s, user, "test S.up", 10)
+			sendAndLog(s, user.id, "test S.up", 10)
 			return
 		}
 	}
@@ -203,19 +208,21 @@ func onSiupServerTest(s *discordgo.Session) {
 func onBumpServerTest(s *discordgo.Session) {
 	fmt.Println("FOUND test Bump message")
 
-	ID := strings.Split(strings.Split("Server bumped by <@522347439676588032>. Malades!", "<@")[1], ">")[0]
-	user, err := s.User(ID)
-	if err != nil {
-		fmt.Println("ERROR test Bump get user failure:", err)
+	userID := strings.Split(strings.Split("Server bumped by <@522347439676588032>. Malades!", "<@")[1], ">")[0]
+	if len(userID) == 0 {
+		fmt.Println("ERROR test Bump get user ID")
 		return
 	}
 
-	fmt.Println("FOUND test Bump user:", user.String())
+	if strings.HasPrefix(userID, "!") {
+		userID = userID[1:]
+	}
+	fmt.Println("FOUND test Bump user:", userID)
 
-	sendAndLog(s, user, "test Bump", 10)
+	sendAndLog(s, userID, "test Bump", 10)
 }
 
-func sendAndLog(s *discordgo.Session, member *discordgo.User, str string, sum int) {
+func sendAndLog(s *discordgo.Session, userID string, str string, sum int) {
 	var (
 		chForCommand = chForComID
 		chForLog     = chMonitorID
@@ -226,17 +233,17 @@ func sendAndLog(s *discordgo.Session, member *discordgo.User, str string, sum in
 		chForLog = chTestLogID
 	}
 
-	_, err = s.ChannelMessageSend(chForCommand, ",add-money "+member.Mention()+" "+strconv.Itoa(sum))
+	_, err = s.ChannelMessageSend(chForCommand, ",add-money "+userID+" "+strconv.Itoa(sum))
 	if err != nil {
 		fmt.Println("ERROR "+str+" sending message giving money:", err)
 		return
 	}
 
-	_, err = s.ChannelMessageSend(chForLog, member.Mention()+", "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, strconv.Itoa(sum)+"<:AH_AniCoin:579712087224483850>"))
+	_, err = s.ChannelMessageSend(chForLog, "<@"+userID+">, "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, strconv.Itoa(sum)+"<:AH_AniCoin:579712087224483850>"))
 	if err != nil {
 		fmt.Println("ERROR "+str+" sending message notice:", err)
 		return
 	}
 
-	fmt.Println("GUILD "+str+" by", member.String())
+	fmt.Println("GUILD "+str+" by", userID)
 }
