@@ -176,7 +176,7 @@ func onBumpServer(s *discordgo.Session, m *discordgo.MessageCreate) {
 		userID = userID[1:]
 	}
 
-	fmt.Println("FOUND Bump user:", userID)
+	fmt.Println("FOUND Bump user", userID)
 
 	sendAndLog(s, userID, "Bump", 1000)
 }
@@ -223,7 +223,7 @@ func onBumpServerTest(s *discordgo.Session) {
 	if strings.HasPrefix(userID, "!") {
 		userID = userID[1:]
 	}
-	fmt.Println("FOUND test Bump user:", userID)
+	fmt.Println("FOUND test Bump user", userID)
 
 	sendAndLog(s, userID, "test Bump", 10)
 }
