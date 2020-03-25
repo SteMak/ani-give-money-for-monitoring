@@ -239,7 +239,7 @@ func sendAndLog(s *discordgo.Session, userID string, str string, sum int) {
 		chForLog = chTestLogID
 	}
 
-	_, err = s.ChannelMessageSend(chForCommand, ",add-money "+userID+" "+strconv.Itoa(sum))
+	_, err = s.ChannelMessageSend(chForCommand, ",add-money <@"+userID+"> "+strconv.Itoa(sum))
 	if err != nil {
 		fmt.Println("ERROR "+str+" sending message giving money:", err)
 		return
