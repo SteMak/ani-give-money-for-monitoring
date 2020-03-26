@@ -37,7 +37,7 @@ func New(token string) *API {
 	}
 }
 
-func (API *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader) (*Balance, error) {
+func (api *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader) (*Balance, error) {
 	var (
 		err error
 		b   Balance
@@ -48,9 +48,9 @@ func (API *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", API.token)
+	req.Header.Add("Authorization", api.token)
 
-	res, err := API.client.Do(req)
+	res, err := api.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -73,12 +73,12 @@ func (API *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader
 }
 
 // GetBalance return Balance of user
-func (API *API) GetBalance(guildID, userID string) (*Balance, error) {
-	return API.request("GET", guildID, userID, nil)
+func (api *API) GetBalance(guildID, userID string) (*Balance, error) {
+	return api.request("GET", guildID, userID, nil)
 }
 
 // SetBalance sets Balance of user
-func (API *API) SetBalance(guildID, userID string, cash, bank int, reason string) (*Balance, error) {
+func (api *API) SetBalance(guildID, userID string, cash, bank int, reason string) (*Balance, error) {
 	jsonBalanse := jsonBalanse{
 		cash:   cash,
 		bank:   bank,
@@ -90,11 +90,11 @@ func (API *API) SetBalance(guildID, userID string, cash, bank int, reason string
 		return nil, err
 	}
 
-	return API.request("PUT", guildID, userID, bytes.NewBuffer(reqBodyBytes))
+	return api.request("PUT", guildID, userID, bytes.NewBuffer(reqBodyBytes))
 }
 
 // AddToBalance adds money to users Balance
-func (API *API) AddToBalance(guildID, userID string, cash, bank int, reason string) (*Balance, error) {
+func (api *API) AddToBalance(guildID, userID string, cash, bank int, reason string) (*Balance, error) {
 	jsonBalanse := jsonBalanse{
 		cash:   cash,
 		bank:   bank,
@@ -106,5 +106,5 @@ func (API *API) AddToBalance(guildID, userID string, cash, bank int, reason stri
 		return nil, err
 	}
 
-	return API.request("PATCH", guildID, userID, bytes.NewBuffer(reqBodyBytes))
+	return api.request("PATCH", guildID, userID, bytes.NewBuffer(reqBodyBytes))
 }
