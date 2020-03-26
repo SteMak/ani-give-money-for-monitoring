@@ -242,7 +242,7 @@ func sendAndLog(s *discordgo.Session, userID string, str string, sum int) {
 		chForLog = chTestLogID
 	}
 
-	_, err = api.AddToBalance(glHouseID, userID, 0, 1000, "for "+str)
+	_, err = api.AddToBalance(glHouseID, userID, 0, sum, "for "+str)
 	if err != nil {
 		fmt.Println("ERROR "+str+" giving money:", err)
 		return
