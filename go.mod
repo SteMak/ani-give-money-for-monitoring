@@ -1,4 +1,4 @@
-module cmd/worker/main.go
+module github.com/SteMak/ani-give-money-for-monitoring
 
 go 1.14
 
