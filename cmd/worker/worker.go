@@ -48,11 +48,9 @@ func main() {
 }
 
 const (
-	chTestLogID = "635202206358044710"
-	chTestComID = "635202206358044710"
-
-	chForComID  = "635202206358044710"
+	chReportsID = "635202206358044710"
 	chMonitorID = "569252448137510922"
+	chTestID    = "635202206358044710"
 
 	usAdminID = "522347439676588032"
 	usSiupID  = "464272403766444044"
@@ -120,7 +118,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Author.ID == usAdminID &&
-		m.ChannelID == chTestComID &&
+		m.ChannelID == chTestID &&
 		strings.HasPrefix(m.Content, "test ") {
 
 		test(s, m)
@@ -189,7 +187,7 @@ func onBumpServer(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func test(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "test R U TYT?" {
-		s.ChannelMessageSend(chTestLogID, "E IM TYT!")
+		s.ChannelMessageSend(chTestID, "E IM TYT!")
 		return
 	}
 
@@ -236,23 +234,48 @@ func onBumpServerTest(s *discordgo.Session) {
 
 func sendAndLog(s *discordgo.Session, userID string, str string, sum int) {
 	var (
-		chForLog = chMonitorID
+		chForLog    = chMonitorID
+		chForReport = chReportsID
 	)
 
 	if strings.HasPrefix(str, "test ") {
-		chForLog = chTestLogID
+		chForLog = chTestID
+		chForReport = chTestID
 	}
 
-	_, err = api.AddToBalance(glHouseID, userID, 0, sum, "for "+str)
+	bal1, err := api.GetBalance(glHouseID, userID)
 	if err != nil {
-		fmt.Println("ERROR "+str+" giving money:", err)
+		fmt.Println("ERROR "+str+" getting user balance:", err)
 		return
+	}
+
+	bal2, err := api.AddToBalance(glHouseID, userID, 0, sum, "for "+str)
+	if err != nil {
+		fmt.Println("ERROR "+str+" updating user balance:", err)
+		return
+	}
+
+	if bal2.Bank-bal1.Bank != 1000 {
+		_, err = s.ChannelMessageSend(chForReport, "Кажись, что-то пошло не так... <@"+userID+"> сделал "+str+", но денег ему не дали(")
+		if err != nil {
+			fmt.Println("ERROR "+str+" sending wrong report message:", err)
+		}
+		_, err = s.ChannelMessageSend(chForLog, "<@"+userID+">, у нас снова что-то сломалось, но не волнуйтесь - деньги Вам прилетят чуть позже)")
+		if err != nil {
+			fmt.Println("ERROR "+str+" sending wrong log message:", err)
+		}
+
+		return
+	}
+
+	_, err = s.ChannelMessageSend(chForReport, strconv.Itoa(sum)+"<:AH_AniCoin:579712087224483850>"+" были выданы <@"+userID+">, за то что он сделал "+str)
+	if err != nil {
+		fmt.Println("ERROR "+str+" sending right report message:", err)
 	}
 
 	_, err = s.ChannelMessageSend(chForLog, "<@"+userID+">, "+fmt.Sprintf(responces[rand.Intn(len(responces))], str, strconv.Itoa(sum)+"<:AH_AniCoin:579712087224483850>"))
 	if err != nil {
-		fmt.Println("ERROR "+str+" sending message notice:", err)
-		return
+		fmt.Println("ERROR "+str+" sending right log message:", err)
 	}
 
 	fmt.Println("GUILD "+str+" by  ", userID)
