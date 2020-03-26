@@ -3,6 +3,7 @@ package bankirapi
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -14,10 +15,10 @@ type API struct {
 	client *http.Client
 }
 
-type jsonBalanse struct {
-	cash   int
-	bank   int
-	reason string
+type JsonBalanse struct {
+	Cash   int
+	Bank   int
+	Reason string
 }
 
 // Balance balance of user
@@ -43,7 +44,7 @@ func (api *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader
 		b   Balance
 	)
 
-	req, err := http.NewRequest(protocol, "https://unbelievaboat.com/API/v1/guilds/"+guildID+"/users/"+userID, reqBodyBytes)
+	req, err := http.NewRequest(protocol, "https://unbelievaboat.com/api/v1/guilds/"+guildID+"/users/"+userID, reqBodyBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -72,17 +73,17 @@ func (api *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader
 	return &b, nil
 }
 
-// GetBalance return Balance of user
+// GetBalance return balance of user
 func (api *API) GetBalance(guildID, userID string) (*Balance, error) {
 	return api.request("GET", guildID, userID, nil)
 }
 
-// SetBalance sets Balance of user
+// SetBalance sets balance of user
 func (api *API) SetBalance(guildID, userID string, cash, bank int, reason string) (*Balance, error) {
-	jsonBalanse := jsonBalanse{
-		cash:   cash,
-		bank:   bank,
-		reason: reason,
+	jsonBalanse := JsonBalanse{
+		Cash:   cash,
+		Bank:   bank,
+		Reason: reason,
 	}
 
 	reqBodyBytes, err := json.Marshal(jsonBalanse)
@@ -93,15 +94,16 @@ func (api *API) SetBalance(guildID, userID string, cash, bank int, reason string
 	return api.request("PUT", guildID, userID, bytes.NewBuffer(reqBodyBytes))
 }
 
-// AddToBalance adds money to users Balance
+// AddToBalance adds money to users balance
 func (api *API) AddToBalance(guildID, userID string, cash, bank int, reason string) (*Balance, error) {
-	jsonBalanse := jsonBalanse{
-		cash:   cash,
-		bank:   bank,
-		reason: reason,
+	jsonBal := JsonBalanse{
+		Cash:   cash,
+		Bank:   bank,
+		Reason: reason,
 	}
 
-	reqBodyBytes, err := json.Marshal(jsonBalanse)
+	reqBodyBytes, err := json.Marshal(jsonBal)
+	fmt.Println(string(reqBodyBytes), err)
 	if err != nil {
 		return nil, err
 	}
