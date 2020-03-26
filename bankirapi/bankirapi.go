@@ -14,10 +14,11 @@ type API struct {
 	client *http.Client
 }
 
-type JsonBalanse struct {
+// JSONBalanse is a structure for chacging user balance
+type JSONBalanse struct {
 	Cash   int    `json:"cash"`
 	Bank   int    `json:"bank"`
-	Reason string `json"reason"`
+	Reason string `json:"reason"`
 }
 
 // Balance balance of user
@@ -79,7 +80,7 @@ func (api *API) GetBalance(guildID, userID string) (*Balance, error) {
 
 // SetBalance sets balance of user
 func (api *API) SetBalance(guildID, userID string, cash, bank int, reason string) (*Balance, error) {
-	jsonBalanse := JsonBalanse{
+	jsonBalanse := JSONBalanse{
 		Cash:   cash,
 		Bank:   bank,
 		Reason: reason,
@@ -95,7 +96,7 @@ func (api *API) SetBalance(guildID, userID string, cash, bank int, reason string
 
 // AddToBalance adds money to users balance
 func (api *API) AddToBalance(guildID, userID string, cash, bank int, reason string) (*Balance, error) {
-	jsonBal := JsonBalanse{
+	jsonBal := JSONBalanse{
 		Cash:   cash,
 		Bank:   bank,
 		Reason: reason,
