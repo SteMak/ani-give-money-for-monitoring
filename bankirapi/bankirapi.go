@@ -3,7 +3,6 @@ package bankirapi
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -16,9 +15,9 @@ type API struct {
 }
 
 type JsonBalanse struct {
-	Cash   int
-	Bank   int
-	Reason string
+	Cash   int    `json:"cash"`
+	Bank   int    `json:"bank"`
+	Reason string `json"reason"`
 }
 
 // Balance balance of user
@@ -103,7 +102,6 @@ func (api *API) AddToBalance(guildID, userID string, cash, bank int, reason stri
 	}
 
 	reqBodyBytes, err := json.Marshal(jsonBal)
-	fmt.Println(string(reqBodyBytes), err)
 	if err != nil {
 		return nil, err
 	}
