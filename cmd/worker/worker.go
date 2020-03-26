@@ -255,7 +255,7 @@ func sendAndLog(s *discordgo.Session, userID string, str string, sum int) {
 		return
 	}
 
-	if bal2.Bank-bal1.Bank != 1000 {
+	if bal2.Bank-bal1.Bank != sum {
 		_, err = s.ChannelMessageSend(chForReport, "Кажись, что-то пошло не так... <@"+userID+"> сделал "+str+", но денег ему не дали(")
 		if err != nil {
 			fmt.Println("ERROR "+str+" sending wrong report message:", err)
