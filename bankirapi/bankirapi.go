@@ -6,12 +6,19 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 // API is a magic structure
 type API struct {
 	token  string
 	client *http.Client
+}
+
+// RateLimit is a structure for 429 error
+type RateLimit struct {
+	Message    string `json:"message"`
+	RetryAfter int    `json:"retry_after"`
 }
 
 // JSONBalanse is a structure for chacging user balance
@@ -40,8 +47,9 @@ func New(token string) *API {
 
 func (api *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader) (*Balance, error) {
 	var (
-		err error
-		b   Balance
+		err   error
+		b     Balance
+		limit RateLimit
 	)
 
 	req, err := http.NewRequest(protocol, "https://unbelievaboat.com/api/v1/guilds/"+guildID+"/users/"+userID, reqBodyBytes)
@@ -68,6 +76,21 @@ func (api *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if res.StatusCode == 429 {
+		resBodyBytes, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(resBodyBytes, &limit)
+		if err != nil {
+			return nil, err
+		}
+
+		time.Sleep(time.Duration(limit.RetryAfter) * time.Millisecond)
+		return api.request(protocol, guildID, userID, reqBodyBytes)
 	}
 
 	return &b, nil
