@@ -243,19 +243,10 @@ func sendAndLog(s *discordgo.Session, userID string, str string, sum int) {
 		chForReport = chTestID
 	}
 
-	bal1, err := api.GetBalance(glHouseID, userID)
-	if err != nil {
-		fmt.Println("ERROR "+str+" getting user balance:", err)
-		return
-	}
-
-	bal2, err := api.AddToBalance(glHouseID, userID, 0, sum, "for "+str)
+	_, err = api.AddToBalance(glHouseID, userID, 0, sum, "for "+str)
 	if err != nil {
 		fmt.Println("ERROR "+str+" updating user balance:", err)
-		return
-	}
 
-	if bal2.Bank-bal1.Bank != sum {
 		_, err = s.ChannelMessageSend(chForReport, "Кажись, что-то пошло не так... <@"+userID+"> сделал "+str+", но денег ему не дали(")
 		if err != nil {
 			fmt.Println("ERROR "+str+" sending wrong report message:", err)
