@@ -3,6 +3,7 @@ package bankirapi
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -21,7 +22,7 @@ type RateLimit struct {
 	RetryAfter int    `json:"retry_after"`
 }
 
-// JSONBalanse is a structure for chacging user balance
+// JSONBalanse is a structure for changing user balance
 type JSONBalanse struct {
 	Cash   int    `json:"cash"`
 	Bank   int    `json:"bank"`
@@ -91,6 +92,11 @@ func (api *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader
 
 		time.Sleep(time.Duration(limit.RetryAfter) * time.Millisecond)
 		return api.request(protocol, guildID, userID, reqBodyBytes)
+	}
+
+	if res.StatusCode == 404 {
+
+		return &b, errors.New("API is unreachable")
 	}
 
 	return &b, nil
