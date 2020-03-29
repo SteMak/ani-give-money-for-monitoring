@@ -64,7 +64,8 @@ func main() {
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "R U TYT?" && m.ChannelID == config.ChReportsID {
-		s.ChannelMessageSend(m.ChannelID, "E IM TYT!")
+		s.ChannelMessageSend(m.ChannelID, "E IM TYT (Monitoring S.up + Bump)!")
+		return
 	}
 
 	if m.ChannelID == config.ChMonitorID {
