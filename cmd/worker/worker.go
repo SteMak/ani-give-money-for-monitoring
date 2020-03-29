@@ -28,6 +28,8 @@ type simplifiedUser struct {
 }
 
 func main() {
+	config.Init()
+	
 	rand.Seed(time.Now().UnixNano())
 
 	api = bankirapi.New(config.BankirToken)
