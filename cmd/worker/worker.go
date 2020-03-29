@@ -30,11 +30,11 @@ type simplifiedUser struct {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	api = bankirapi.New("Bot " + config.BankirToken)
+	api = bankirapi.New(config.BankirToken)
 
 	fmt.Println("1 WORKER started")
 
-	dg, err := discordgo.New(config.Token)
+	dg, err := discordgo.New("Bot " + config.Token)
 	if err != nil {
 		fmt.Println("ERROR creating Discord session:", err)
 		return
