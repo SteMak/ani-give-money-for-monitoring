@@ -30,7 +30,7 @@ type simplifiedUser struct {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	api = bankirapi.New(config.BankirToken)
+	api = bankirapi.New("Bot " + config.BankirToken)
 
 	fmt.Println("1 WORKER started")
 
