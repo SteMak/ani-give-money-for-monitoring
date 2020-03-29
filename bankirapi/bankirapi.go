@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -95,8 +96,11 @@ func (api *API) request(protocol, guildID, userID string, reqBodyBytes io.Reader
 	}
 
 	if res.StatusCode == 404 {
+		return &b, errors.New("API is unreachable: 404")
+	}
 
-		return &b, errors.New("API is unreachable")
+	if res.StatusCode != http.StatusOK {
+		return &b, errors.New("Strange status code: " + strconv.Itoa(res.StatusCode))
 	}
 
 	return &b, nil
