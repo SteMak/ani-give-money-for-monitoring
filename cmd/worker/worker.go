@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -31,11 +30,11 @@ type simplifiedUser struct {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	api = bankirapi.New(os.Getenv("BANKIRAPI_TOKEN"))
+	api = bankirapi.New(config.BankirToken)
 
 	fmt.Println("1 WORKER started")
 
-	dg, err := discordgo.New(os.Getenv("TOKEN"))
+	dg, err := discordgo.New(config.Token)
 	if err != nil {
 		fmt.Println("ERROR creating Discord session:", err)
 		return
@@ -62,6 +61,10 @@ func main() {
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Content == "R U TYT?" && m.ChannelID == config.ChReportsID {
+		s.ChannelMessageSend(m.ChannelID, "E IM TYT!")
+	}
+
 	if m.ChannelID == config.ChMonitorID {
 		if len(chMonitorWriters) >= 30 {
 			chMonitorWriters = chMonitorWriters[1:]

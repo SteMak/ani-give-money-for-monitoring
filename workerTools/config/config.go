@@ -5,19 +5,20 @@ import (
 )
 
 var (
+	// Token discord token
+	Token string
+	// BankirToken token of bankir bot
+	BankirToken string
+
 	// ChReportsID for reports
 	ChReportsID string
 	// ChMonitorID for monitoring
 	ChMonitorID string
-	// ChTestID for tests
-	ChTestID    string
 
-	// UsAdminID my user
-	UsAdminID string
 	// UsSiupID siup user
-	UsSiupID  string
+	UsSiupID string
 	// UsBumpID bump user
-	UsBumpID  string
+	UsBumpID string
 
 	// GlHouseID house ID
 	GlHouseID string
@@ -54,11 +55,12 @@ var (
 
 // Init inits main vars for the project
 func Init() {
+	Token = os.Getenv("TOKEN")
+	BankirToken = os.Getenv("BANKIRAPI_TOKEN")
+
 	ChReportsID = os.Getenv("CH_REPORTS_ID")
 	ChMonitorID = os.Getenv("CH_MONITOR_ID")
-	ChTestID = os.Getenv("CH_TEST_ID")
 
-	UsAdminID = os.Getenv("US_ADMIN_ID")
 	UsSiupID = os.Getenv("US_SIUP_ID")
 	UsBumpID = os.Getenv("US_BUMP_ID")
 
